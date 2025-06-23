@@ -27,8 +27,11 @@ public class SimTransactionService {
         ResponseEntity<ActuatorResponse> response =
                 rest.postForEntity(ACTUATOR_URL, payload, ActuatorResponse.class);
 
+        ActuatorResponse body = response.getBody();
         boolean activated = response.getStatusCode().is2xxSuccessful()
-                           && Boolean.TRUE.equals(response.getBody().getSuccess());
+                        && body != null
+                        && Boolean.TRUE.equals(body.getSuccess());
+                
 
         /* ---- 2. Persist the outcome ---- */
         SimTransaction saved =
