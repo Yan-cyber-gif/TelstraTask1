@@ -2,19 +2,20 @@ package au.com.telstra.simcardactivator.model;
 
 public class ActuatorResponse {
 
-    private boolean success;
+    private Boolean success;
 
-    public ActuatorResponse() {}
+    public ActuatorResponse() { }
 
-    public ActuatorResponse(boolean success) {
-        this.success = success;
-    }
-
-    public boolean isSuccess() {
+    public Boolean getSuccess() {
         return success;
     }
 
-    public void setSuccess(boolean success) {
+    /* add this ↓ */
+    public Boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(Boolean success) {
         this.success = success;
     }
 }
