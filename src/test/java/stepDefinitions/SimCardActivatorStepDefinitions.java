@@ -1,18 +1,31 @@
 package stepDefinitions;
 
-import au.com.telstra.simcardactivator.SimCardActivator;
-import io.cucumber.spring.CucumberContextConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootContextLoader;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.test.context.ContextConfiguration;
+import io.cucumber.java.en.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+import java.util.Map;
+import static org.junit.jupiter.api.Assertions.*;
 
-@CucumberContextConfiguration
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(classes = SimCardActivator.class, loader = SpringBootContextLoader.class)
 public class SimCardActivatorStepDefinitions {
-    @Autowired
-    private TestRestTemplate restTemplate;
 
+    private final RestTemplate rest = new RestTemplate();
+    private ResponseEntity<Map> lastPost;
+    private long lastId;
+
+    @Given("the SIM card actuator is running")
+    public void actuatorRunning() { }
+
+    @When("I activate a SIM card with iccid {string} and email {string}")
+    public void activateSim(String iccid, String email) {
+        Map<String, String> body = Map.of("iccid", iccid, "customerEmail", email);
+        lastPost = rest.postForEntity("http://localhost:8080/transactions", body, Map.class);
+        lastId = ((Number) lastPost.getBody().get("id")).longValue();
+    }
+
+    @Then("the activation should be recorded with id {int} and active {word}")
+    public void verifyActivation(int expectedId, String expectedActive) {
+        Map response = rest.getForObject("http://localhost:8080/transactions?simCardId=" + expectedId, Map.class);
+        assertEquals(Boolean.parseBoolean(expectedActive), response.get("active"));
+        assertEquals(expectedId, lastId);
+    }
 }
